@@ -21,43 +21,60 @@ sudo pacman -S --needed --noconfirm "${DEPENDENCIES[@]}"
 
 # --- 2b. Application Dependencies ---
 echo -e "${YELLOW}Step 1b: Installing Applications...${NC}"
-# Core Apps (from Hyprland config: kitty, brave, dolphin)
-CORE_APPS=(kitty dolphin brave)
 
-# Additional Apps (browser, media, code, games)
-EXTRA_APPS=(
-    google-chrome         # Web browser
-    vlc                   # Media player
-    code                  # VS Code
-    # AUR packages (if using yay/paru)
-    # antigravity          # Game launcher
-    # steam                # Steam client
-    # lutris               # Game launcher
+# Core Apps (from Hyprland config)
+CORE_APPS=(kitty dolphin)
+
+# Essential Apps from official repos
+ESSENTIAL_APPS=(
+    firefox                 # Web browser
+    vlc                     # Media player
+    qbittorrent             # Torrent client
+    mpv                     # Video player
+    neovim                  # Text editor
+    micro                   # Simple text editor
+    starship                # Shell prompt
+    fzf                     # Fuzzy finder
+    bat                     # Cat clone with syntax highlighting
+    eza                     # Modern ls replacement
+    btop                    # System monitor
+    rust                    # Rust compiler (for starship)
+    ripgrep                 # Grep replacement
+    git                     # Version control
+    wget                    # Download utility
+    curl                    # HTTP client
+    unzip                   # Archive extraction
+    tar                     # Archive utility
 )
 
 # Install Core Apps
 sudo pacman -S --needed --noconfirm "${CORE_APPS[@]}"
 
-# Install Extra Apps (ignore errors if not in official repos)
-for app in "${EXTRA_APPS[@]}"; do
+# Install Essential Apps
+for app in "${ESSENTIAL_APPS[@]}"; do
     if pacman -Qq "$app" &>/dev/null; then
         echo -e "${GREEN}  ✔ $app already installed${NC}"
     else
-        echo -e "${BLUE}  Attempting to install $app...${NC}"
-        sudo pacman -S --needed --noconfirm "$app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $app not found in repos, skipping${NC}"
+        echo -e "${BLUE}  Installing $app...${NC}"
+        sudo pacman -S --needed --noconfirm "$app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $app not found, skipping${NC}"
     fi
 done
 
 # Install AUR packages (if yay/paru is available)
 if command -v yay &>/dev/null || command -v paru &>/dev/null; then
     echo -e "${BLUE}Installing AUR packages...${NC}"
-    AUR_APPS=(antigravity)
+    AUR_PACMAN="paru"
+    command -v yay &>/dev/null && AUR_PACMAN="yay"
+    
+    AUR_APPS=(
+        "visual-studio-code-bin"  # VS Code (proprietary)
+        "brave-bin"               # Brave browser
+        "antigravity"            # Game launcher
+    )
+    
     for aur_app in "${AUR_APPS[@]}"; do
-        if command -v yay &>/dev/null; then
-            yay -S --noconfirm "$aur_app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $aur_app failed, skipping${NC}"
-        else
-            paru -S --noconfirm "$aur_app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $aur_app failed, skipping${NC}"
-        fi
+        echo -e "${BLUE}  Installing $aur_app...${NC}"
+        $AUR_PACMAN -S --noconfirm "$aur_app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $aur_app failed, skipping${NC}"
     done
 else
     echo -e "${YELLOW}  ⚠ yay/paru not found, skipping AUR packages${NC}"
