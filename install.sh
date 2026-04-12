@@ -11,23 +11,23 @@ NC='\033[0m'
 echo -e "${BLUE}Starting Ashish's Ultimate HyDE & Power Install...${NC}"
 
 # Ensure we are in the dotfiles directory
-DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 cd "$DOTFILES_DIR"
 
 # --- 2. System Dependency Check ---
 echo -e "${YELLOW}Step 1: Installing Core Dependencies...${NC}"
-DEPENDENCIES=(stow git brightnessctl tlp auto-cpufreq envycontrol powertop thermald)
+DEPENDENCIES=(stow git brightnessctl tlp auto-cpufreq envycontrol powertop thermald fastfetch)
 sudo pacman -S --needed --noconfirm "${DEPENDENCIES[@]}"
 
 # --- 3. HyDE Framework Check ---
 if [ ! -d "$HOME/.local/lib/hyde" ]; then
-    echo -e "${YELLOW}Step 2: HyDE not detected. Installing HyDE Framework...${NC}"
-    git clone https://github.com/prasanthrangan/hyprdots.git /tmp/hyde-install
-    cd /tmp/hyde-install/Scripts
-    ./install.sh
-    cd "$DOTFILES_DIR"
+  echo -e "${YELLOW}Step 2: HyDE not detected. Installing HyDE Framework...${NC}"
+  git clone https://github.com/prasanthrangan/hyprdots.git /tmp/hyde-install
+  cd /tmp/hyde-install/Scripts
+  ./install.sh
+  cd "$DOTFILES_DIR"
 else
-    echo -e "${GREEN}✔ HyDE Framework already installed.${NC}"
+  echo -e "${GREEN}✔ HyDE Framework already installed.${NC}"
 fi
 
 # --- 4. Separation of Powers (Battery Strategy) ---
@@ -59,8 +59,8 @@ echo -e "${YELLOW}Step 4: Setting up Refresh Rate Udev Rules...${NC}"
 
 # Create the refresh rate script in the dotfiles/scripts folder if it doesn't exist
 if [ ! -f "$DOTFILES_DIR/scripts/.local/bin/power_profile.sh" ]; then
-    mkdir -p "$DOTFILES_DIR/scripts/.local/bin"
-    cat << 'EOF' > "$DOTFILES_DIR/scripts/.local/bin/power_profile.sh"
+  mkdir -p "$DOTFILES_DIR/scripts/.local/bin"
+  cat <<'EOF' >"$DOTFILES_DIR/scripts/.local/bin/power_profile.sh"
 #!/bin/bash
 if grep -q "0" /sys/class/power_supply/AC/online; then
     hyprctl keyword monitor "eDP-1, 1920x1080@60, 0x0, 1"
@@ -68,7 +68,7 @@ else
     hyprctl keyword monitor "eDP-1, 1920x1080@144, 0x0, 1"
 fi
 EOF
-    chmod +x "$DOTFILES_DIR/scripts/.local/bin/power_profile.sh"
+  chmod +x "$DOTFILES_DIR/scripts/.local/bin/power_profile.sh"
 fi
 
 # Write the Udev Rule
@@ -81,13 +81,13 @@ EOF"
 echo -e "${YELLOW}Step 5: Symlinking Dotfiles with Stow...${NC}"
 
 # Backup existing configs to avoid stow conflicts
-CONFIGS=(hypr waybar kitty)
+CONFIGS=(hypr waybar kitty fastfetch)
 for cfg in "${CONFIGS[@]}"; do
-    if [ -d "$HOME/.config/$cfg" ] && [ ! -L "$HOME/.config/$cfg" ]; then
-        echo -e "${BLUE}Backing up existing $cfg config...${NC}"
-        mv "$HOME/.config/$cfg" "$HOME/.config/${cfg}_bak"
-    fi
-    stow -R "$cfg"
+  if [ -d "$HOME/.config/$cfg" ] && [ ! -L "$HOME/.config/$cfg" ]; then
+    echo -e "${BLUE}Backing up existing $cfg config...${NC}"
+    mv "$HOME/.config/$cfg" "$HOME/.config/${cfg}_bak"
+  fi
+  stow -R "$cfg"
 done
 
 # Stow custom scripts
@@ -99,3 +99,4 @@ echo -e "${BLUE}1. Hybrid GPU Active (use prime-run)${NC}"
 echo -e "${BLUE}2. auto-cpufreq & TLP Coexisting${NC}"
 echo -e "${BLUE}3. Refresh rate will auto-switch on plug/unplug${NC}"
 echo -e "${YELLOW}Please REBOOT to apply all kernel and udev changes.${NC}"
+
