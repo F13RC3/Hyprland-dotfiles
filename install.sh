@@ -29,6 +29,7 @@ CORE_APPS=(kitty dolphin)
 ESSENTIAL_APPS=(
     firefox                 # Web browser
     vlc                     # Media player
+    obs-studio              # Screen recorder/streaming
     qbittorrent             # Torrent client
     mpv                     # Video player
     neovim                  # Text editor
@@ -45,6 +46,7 @@ ESSENTIAL_APPS=(
     curl                    # HTTP client
     unzip                   # Archive extraction
     tar                     # Archive utility
+    python                  # Python interpreter
 )
 
 # Install Core Apps
@@ -70,6 +72,8 @@ if command -v yay &>/dev/null || command -v paru &>/dev/null; then
         "visual-studio-code-bin"  # VS Code (proprietary)
         "brave-bin"               # Brave browser
         "antigravity"            # Game launcher
+        "ani-cli"                # CLI anime player
+        "miniconda3"             # Conda Python environment
     )
     
     for aur_app in "${AUR_APPS[@]}"; do
