@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# 1. Identity
-USER_NAME="kei0s"
-USER_ID="1000"
+# 1. Identity - Dynamic user detection
+USER_ID=$(id -u)
 export XDG_RUNTIME_DIR="/run/user/$USER_ID"
 
 # 2. Locate the actual socket file
