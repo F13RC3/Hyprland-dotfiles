@@ -16,9 +16,52 @@ cd "$DOTFILES_DIR"
 
 # --- 2. System Dependency Check ---
 echo -e "${YELLOW}Step 1: Installing Core Dependencies...${NC}"
-# Added libnotify for the power alerts
 DEPENDENCIES=(stow git brightnessctl tlp auto-cpufreq envycontrol powertop thermald fastfetch libnotify)
 sudo pacman -S --needed --noconfirm "${DEPENDENCIES[@]}"
+
+# --- 2b. Application Dependencies ---
+echo -e "${YELLOW}Step 1b: Installing Applications...${NC}"
+# Core Apps (from Hyprland config: kitty, brave, dolphin)
+CORE_APPS=(kitty dolphin brave)
+
+# Additional Apps (browser, media, code, games)
+EXTRA_APPS=(
+    google-chrome         # Web browser
+    vlc                   # Media player
+    code                  # VS Code
+    # AUR packages (if using yay/paru)
+    # antigravity          # Game launcher
+    # steam                # Steam client
+    # lutris               # Game launcher
+)
+
+# Install Core Apps
+sudo pacman -S --needed --noconfirm "${CORE_APPS[@]}"
+
+# Install Extra Apps (ignore errors if not in official repos)
+for app in "${EXTRA_APPS[@]}"; do
+    if pacman -Qq "$app" &>/dev/null; then
+        echo -e "${GREEN}  ✔ $app already installed${NC}"
+    else
+        echo -e "${BLUE}  Attempting to install $app...${NC}"
+        sudo pacman -S --needed --noconfirm "$app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $app not found in repos, skipping${NC}"
+    fi
+done
+
+# Install AUR packages (if yay/paru is available)
+if command -v yay &>/dev/null || command -v paru &>/dev/null; then
+    echo -e "${BLUE}Installing AUR packages...${NC}"
+    AUR_APPS=(antigravity)
+    for aur_app in "${AUR_APPS[@]}"; do
+        if command -v yay &>/dev/null; then
+            yay -S --noconfirm "$aur_app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $aur_app failed, skipping${NC}"
+        else
+            paru -S --noconfirm "$aur_app" 2>/dev/null || echo -e "${YELLOW}  ⚠ $aur_app failed, skipping${NC}"
+        fi
+    done
+else
+    echo -e "${YELLOW}  ⚠ yay/paru not found, skipping AUR packages${NC}"
+fi
 
 # --- 3. HyDE Framework Check ---
 if [ ! -d "$HOME/.local/lib/hyde" ]; then
