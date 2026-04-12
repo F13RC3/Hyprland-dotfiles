@@ -25,7 +25,7 @@ echo -e "${YELLOW}Step 1b: Installing Applications...${NC}"
 # Core Apps (from Hyprland config)
 CORE_APPS=(kitty dolphin)
 
-# Essential Apps from official repos
+# Essential Apps from official repos (user-installed apps only)
 ESSENTIAL_APPS=(
     firefox                 # Web browser
     vlc                     # Media player
@@ -33,20 +33,12 @@ ESSENTIAL_APPS=(
     qbittorrent             # Torrent client
     mpv                     # Video player
     neovim                  # Text editor
-    micro                   # Simple text editor
     starship                # Shell prompt
     fzf                     # Fuzzy finder
     bat                     # Cat clone with syntax highlighting
     eza                     # Modern ls replacement
     btop                    # System monitor
-    rust                    # Rust compiler (for starship)
     ripgrep                 # Grep replacement
-    git                     # Version control
-    wget                    # Download utility
-    curl                    # HTTP client
-    unzip                   # Archive extraction
-    tar                     # Archive utility
-    python                  # Python interpreter
 )
 
 # Install Core Apps
