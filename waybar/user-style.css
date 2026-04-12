@@ -1,0 +1,6 @@
+/* User custom styles */
+window#waybar {
+    background-color: transparent /* 50% transparent black */
+    /* Or for complete transparency */
+    /* background-color: transparent; */
+}
