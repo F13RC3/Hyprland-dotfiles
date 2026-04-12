@@ -1,8 +1,10 @@
-# F13RC3 // Hyprland Dotfiles
+# F13RC3 // Kei0s Lab - Hyprland Dotfiles
 
 ![Hyprland](https://img.shields.io/badge/WM-Hyprland-blue?style=for-the-badge&logo=arch-linux)
 ![Distro](https://img.shields.io/badge/Distro-CachyOS-orange?style=for-the-badge&logo=linux)
 ![Framework](https://img.shields.io/badge/Framework-HyDE-purple?style=for-the-badge&logo=gnometerminal)
+
+> **Kei0s Lab** - A high-performance, battery-optimized Hyprland environment
 
 A high-performance, battery-optimized Hyprland environment built for **CachyOS** using the **HyDE** framework. This repository is managed via **GNU Stow** to ensure configuration portability and seamless system updates.
 
@@ -38,7 +40,7 @@ To achieve maximum battery longevity on hybrid-GPU hardware without compromising
 - **TLP**: Handles system-wide hardware power (USB, PCIe, Audio, Disk). CPU scaling is explicitly disabled in `/etc/tlp.conf` to prevent governor conflicts.
 - **auto-cpufreq**: Exclusively manages CPU frequency scaling, governors, and Energy Performance Preferences (EPP).
 - **EnvyControl**: Manages GPU switching, defaulted to **Hybrid Mode**. This allows the Nvidia dGPU to enter the `D3cold` (deep sleep) state when not utilized by `prime-run`.
-- **Refresh-Rate Automator**: A custom `udev` and `hyprctl` integration that dynamically switches the display between 60Hz (Battery) and 144Hz+ (AC).
+- **Refresh-Rate Automator**: A custom `udev` and `hyprctl` integration that dynamically switches the display between 60Hz (Battery) and 120Hz (AC) at 1.25 scale, with desktop notifications.
 
 ---
 
@@ -105,7 +107,8 @@ To achieve maximum battery longevity on hybrid-GPU hardware without compromising
 | TLP | System-wide power management (USB, PCIe, Audio, Disk) |
 | auto-cpufreq | CPU frequency scaling and governors |
 | EnvyControl | Hybrid GPU mode with dGPU sleep |
-| Refresh Rate Switcher | Auto-switch between 60Hz (battery) and 144Hz (AC) |
+| Refresh Rate Switcher | Auto-switch between 60Hz (battery) and 120Hz (AC) with notifications |
+| libnotify | Desktop notifications for power events |
 | Powertop | Additional power optimization |
 | Thermald | Thermal management |
 
@@ -151,14 +154,17 @@ chmod +x install.sh
 
 The installer performs the following steps:
 
-1. **Installs Core Dependencies**: stow, git, brightnessctl, tlp, auto-cpufreq, envycontrol, powertop, thermald, fastfetch
+1. **Installs Core Dependencies**: stow, git, brightnessctl, tlp, auto-cpufreq, envycontrol, powertop, thermald, fastfetch, **libnotify**
 2. **Installs HyDE Framework** (if not already installed)
 3. **Configures Power Management**:
    - Disables TLP CPU management (for auto-cpufreq)
    - Disables power-profiles-daemon
    - Enables TLP, auto-cpufreq, powertop, thermald services
    - Sets EnvyControl to Hybrid mode
-4. **Sets up Refresh Rate Udev Rules**: Auto-switch between 60Hz (battery) and 144Hz (AC)
+4. **Sets up Refresh Rate Automation**:
+   - Creates `power_profile.sh` with socket detection and notifications
+   - Configures udev rules to trigger on power supply changes
+   - Auto-switches between 60Hz (battery) and 120Hz (AC) at 1.25 scale
 5. **Symlinks Dotfiles with Stow**: Creates proper symlinks in `~/.config/`
 6. **Finalization**: Shows next steps
 
@@ -283,6 +289,9 @@ cat /etc/udev/rules.d/99-monitor-refresh.rules
 
 # Test the script manually
 ~/.local/bin/power_profile.sh
+
+# Check notification permissions
+notify-send "Test" "Hello" -i battery
 ```
 
 ---
