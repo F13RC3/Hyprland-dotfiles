@@ -58,38 +58,41 @@ sudo envycontrol -s hybrid
 # --- 5. Custom System Rules (Refresh Rate Switcher) ---
 echo -e "${YELLOW}Step 4: Setting up Refresh Rate Automation...${NC}"
 
+# Get current user dynamically
+USER_NAME=$(whoami)
+USER_ID=$(id -u)
+
 # Create the bulletproof refresh rate script
 mkdir -p "$DOTFILES_DIR/scripts/.local/bin"
-cat <<'EOF' >"$DOTFILES_DIR/scripts/.local/bin/power_profile.sh"
+cat <<EOF >"$DOTFILES_DIR/scripts/.local/bin/power_profile.sh"
 #!/bin/bash
-USER_NAME="kei0s"
-USER_ID="1000"
-export XDG_RUNTIME_DIR="/run/user/$USER_ID"
+USER_ID="\$(id -u)"
+export XDG_RUNTIME_DIR="/run/user/\$USER_ID"
 
 # Find the active Hyprland socket
-SOCKET_FILE=$(find /run/user/$USER_ID/hypr/ -name ".socket.sock" | head -n 1)
-if [ -z "$SOCKET_FILE" ]; then exit 1; fi
+SOCKET_FILE=\$(find /run/user/\$USER_ID/hypr/ -name ".socket.sock" | head -n 1)
+if [ -z "\$SOCKET_FILE" ]; then exit 1; fi
 
-HYPR_SIG=$(basename $(dirname "$SOCKET_FILE"))
-export HYPRLAND_INSTANCE_SIGNATURE="$HYPR_SIG"
+HYPR_SIG=\$(basename \$(dirname "\$SOCKET_FILE"))
+export HYPRLAND_INSTANCE_SIGNATURE="\$HYPR_SIG"
 
 # Wait for power state to settle
 sleep 1
 
 # Check AC status and apply monitor settings (120Hz / 60Hz @ 1.25 scale)
 if grep -q "0" /sys/class/power_supply/AC*/online; then
-    /usr/bin/hyprctl --instance "$HYPR_SIG" keyword monitor "eDP-1, 1920x1080@60, 0x0, 1.25"
+    /usr/bin/hyprctl --instance "\$HYPR_SIG" keyword monitor "eDP-1, 1920x1080@60, 0x0, 1.25"
     /usr/bin/notify-send "Power Status" "Battery Mode: 60Hz" -i battery
 else
-    /usr/bin/hyprctl --instance "$HYPR_SIG" keyword monitor "eDP-1, 1920x1080@120, 0x0, 1.25"
+    /usr/bin/hyprctl --instance "\$HYPR_SIG" keyword monitor "eDP-1, 1920x1080@120, 0x0, 1.25"
     /usr/bin/notify-send "Power Status" "AC Mode: 120Hz" -i ac-adapter
 fi
 EOF
 chmod +x "$DOTFILES_DIR/scripts/.local/bin/power_profile.sh"
 
-# Write the Simplified Udev Rule using the correct username
+# Write the Udev Rule with dynamic username
 sudo bash -c "cat << EOF > /etc/udev/rules.d/99-monitor-refresh.rules
-SUBSYSTEM==\"power_supply\", ACTION==\"change\", RUN+=\"/usr/bin/sudo -u kei0s /home/kei0s/.local/bin/power_profile.sh\"
+SUBSYSTEM==\"power_supply\", ACTION==\"change\", RUN+=\"/usr/bin/sudo -u $USER_NAME /home/$USER_NAME/.local/bin/power_profile.sh\"
 EOF"
 
 # --- 6. Stowing Dotfiles ---
