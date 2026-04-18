@@ -13,10 +13,10 @@
     /* Modified by Hyde */
 
     /* Modify/add style in ~/.config/waybar/styles/ */
-    @import "~/.local/share/waybar/styles/hyprdots.css";
+    @import "/home/kei0s/.local/share/waybar/styles/hyprdots.css";
 
     /* Imports wallbash colors */
-    @import "~/.cache/hyde/wallbash/gtk.css";
+    /*  wallbash gtk.css not found   */
 
     /* Colors and theme configuration is generated through the `theme.css` file */
     @import "theme.css";
